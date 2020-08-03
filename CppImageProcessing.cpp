@@ -3,9 +3,51 @@
 
 #include <iostream>
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
+
+
 int main()
 {
-    std::cout << "Hello World!\n";
+	// video processing tutorial from opencv.org
+	std::string input_path = "G:/Video/7 Days to Die/7 Days to Die 2020.07.13 - 20.56.06.01.mp4";
+	std::string output_path = "C:/Users/moriy/Downloads/video/video.mp4";
+	cv::VideoCapture input(input_path);
+	if (!input.isOpened()) {
+		std::cout << "Could not open the input video: " << input_path << std::endl;
+		return -1;
+	}
+
+	cv::VideoWriter output;  // init output video
+	int fourcc = input.get(cv::CAP_PROP_FOURCC);
+	//int fourcc = NULL;  // can make video
+	cv::Size S = cv::Size((int)input.get(cv::CAP_PROP_FRAME_WIDTH) * 0.5, (int)input.get(cv::CAP_PROP_FRAME_HEIGHT) * 0.5);
+	//cv::Size S;  // can't make video
+	int fps = input.get(cv::CAP_PROP_FPS);
+	//int fps = NULL;  // can't make video
+	std::cout << "fourcc:" << fourcc << std::endl;
+	std::cout << "fps:" << fps << std::endl;
+	std::cout << "S:" << S << std::endl;
+	output.open(output_path, fourcc, fps, S, false);
+
+	if (!output.isOpened()) {
+		std::cout << "Could not open the output video: " << output_path << std::endl;
+		return -1;
+	}
+
+	cv::Mat src, res;  // show images
+	for (int i=0; i < 1000; i++) {
+		input >> src;
+		if (src.empty()) break;
+
+		cv::cvtColor(src, res, cv::COLOR_BGR2GRAY);
+		cv::resize(res, res, S);
+		output << res;
+	}
+
+	std::cout << "Finished writing." << std::endl;
+	return 0;
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
